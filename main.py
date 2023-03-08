@@ -5,8 +5,8 @@ import time
 import glob
 import logging
 try:
-    os.setgid(os.getenv("GID",os.getgid()))
-    os.setuid(os.getenv("UID",os.getuid()))
+    os.setgid(int(os.getenv("GID",os.getgid())))
+    os.setuid(int(os.getenv("UID",os.getuid())))
 except PermissionError:
     pass
 
