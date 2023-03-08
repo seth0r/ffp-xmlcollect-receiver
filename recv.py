@@ -18,13 +18,13 @@ class Receiver(Thread):
         os.makedirs(self.stordir, exist_ok = True)
         self.recv_workers = multiprocessing.pool.ThreadPool(self.threads)
         #self.srv = socket.create_server(("0.0.0.0",port),backlog=self.threads)
-        self.srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.srv = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         self.srv.settimeout(1)
         self.start()
 
     def run(self):
         self.logger.info("Listening on Port %d..." % self.port)
-        self.srv.bind(('0.0.0.0', self.port))
+        self.srv.bind(('', self.port))
         self.srv.listen(self.threads)
         res = []
         while not self.shouldstop():
