@@ -2,7 +2,7 @@ NAME:=ffp-xmlcollect-receiver
 VOLUMES:=-v ${CURDIR}/tmpstor/:/tmpstor/
 PORT:=17485
 RECVTHREADS:=128
-ADDNET:=dbs
+NET:=ffp
 RESTART:=unless-stopped
 
 CID=`docker ps | grep ${NAME} | cut -d' ' -f1`
@@ -14,8 +14,7 @@ build:
 .PHONY: build
 
 run: stop remove build
-	docker run -d --restart ${RESTART} --name ${NAME} -p ${PORT}:${PORT} ${ENV} ${VOLUMES} ${RUNARGS} ${NAME}
-	docker network connect ${ADDNET} ${NAME}
+	docker run -d --restart ${RESTART} --name ${NAME} --network ${NET} ${ENV} ${VOLUMES} ${RUNARGS} ${NAME}
 .PHONY: run
 
 shell: running
