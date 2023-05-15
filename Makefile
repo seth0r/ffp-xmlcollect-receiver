@@ -4,6 +4,7 @@ PORT:=17485
 RECVTHREADS:=128
 NET:=ffp
 RESTART:=unless-stopped
+RUNARGS:=--ip6 "2a03:4000:5e:f7f:ff::444d" --memory=2g
 
 CID=`docker ps | grep ${NAME} | cut -d' ' -f1`
 ENV=-e "GIT_COMMIT=`git rev-parse HEAD`" -e "HOSTHOSTNAME=`hostname`" -e "UID=`id -u`" -e "GID=`id -g`" \
