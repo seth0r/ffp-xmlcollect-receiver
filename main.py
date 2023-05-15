@@ -40,6 +40,8 @@ for d in glob.glob( os.path.join( TMPSTOR, "*" ) ):
 
 now = time.time()
 for fp in glob.glob( os.path.join( TMPSTOR, "*","*" ) ):
+    if not os.path.isfile(fp):
+        continue
     fn = os.path.basename(fp)
     hn = os.path.basename(os.path.dirname(fp))
     scheduler.put( now, hn, fn )
