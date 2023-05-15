@@ -14,6 +14,7 @@ ENV PORT 17485
 ENV RECVTHREADS 128
 
 COPY *.py /code/
+COPY parser /code/parser
 
 WORKDIR /code
 
