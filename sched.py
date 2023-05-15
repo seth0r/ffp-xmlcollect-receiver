@@ -39,5 +39,5 @@ class Scheduler(Process):
     def put(self, ts, hostname, filename):
         self.inq.put((ts,hostname,filename))
 
-    def get(self):
-        return self.outq.get()
+    def get(self,*args,**kwargs):
+        return self.outq.get(*args,**kwargs)
