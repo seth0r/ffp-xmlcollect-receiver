@@ -29,7 +29,9 @@ class Receiver(Thread):
         res = []
         while not self.shouldstop():
             try:
-                (conn,(ip,port)) = self.srv.accept()
+                (conn,address) = self.srv.accept()
+                ip = address[0]
+                port = address[1]
             except TimeoutError:
                 pass
             except socket.timeout:
