@@ -32,6 +32,12 @@ from sched import Scheduler
 scheduler = Scheduler( int(os.getenv("WAITPARSE", 30)) )
 procs.append( scheduler )
 
+for d in glob.glob( os.path.join( TMPSTOR, "*" ) ):
+    try:
+        os.rmdir( d )
+    except:
+        pass
+
 now = time.time()
 for fp in glob.glob( os.path.join( TMPSTOR, "*","*" ) ):
     fn = os.path.basename(fp)
