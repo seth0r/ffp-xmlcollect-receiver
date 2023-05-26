@@ -4,6 +4,11 @@ import os
 import gzip
 from xml.etree import ElementTree as ET
 import parser
+from collections import defaultdict
+
+class defdict(defaultdict):
+    def __init__(self,*args):
+        super().__init__(self.__class__)
 
 class Parser(Process,parser.ffgParser):
     def __init__( self, stordir, scheduler = None ):
@@ -39,13 +44,13 @@ class Parser(Process,parser.ffgParser):
             else:
                 self.logger.warning("Parsing of %s from %s not implemented.", fname, host)
         except Exception as ex:
-            self.logger.exception(str(ex))
+            self.logger.exception("Error parsing %s from %s.", fname, host)
         mvdir = os.path.join( self.stordir, ".mv", host )
         os.makedirs( mvdir, exist_ok = True)
         os.rename( fp, os.path.join( mvdir, fname ) )
 
     def parse_xml(self, fo, host):
-        res = {}
+        res = defdict()
         for evt,elem in ET.iterparse(fo, ["start","end"]):
             fnk = "%s_%s" % (elem.tag,evt)
             if hasattr(self,fnk):
