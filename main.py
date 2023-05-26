@@ -50,7 +50,8 @@ from recv import Receiver
 procs.append( Receiver( TMPSTOR, int(os.getenv("PORT", 17485)), int(os.getenv("RECVTHREADS", 128)), scheduler ) )
 
 from parser import Parser
-procs.append( Parser( TMPSTOR, scheduler ) )
+for i in range(4):
+    procs.append( Parser( TMPSTOR, scheduler ) )
 
 try:
     while True:
