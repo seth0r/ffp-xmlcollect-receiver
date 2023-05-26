@@ -18,7 +18,7 @@ except ValueError:
         loglevel = getattr(logging, loglevel)
     else:
         loglevel = logging.INFO
-logformat = '%(asctime)-15s %(levelname)s %(name)s.%(funcName)s: %(message)s'
+logformat = '%(asctime)-15s %(levelname)s %(name)s[%(process)d].%(funcName)s: %(message)s'
 loghandlers = [
     logging.StreamHandler( stream = sys.stdout )
 ]
