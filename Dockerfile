@@ -15,6 +15,7 @@ ENV RECVTHREADS 128
 
 COPY *.py /code/
 COPY parser /code/parser
+COPY cron /code/cron
 
 WORKDIR /code
 

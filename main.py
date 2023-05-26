@@ -53,6 +53,9 @@ from parser import Parser
 for i in range(4):
     procs.append( Parser( TMPSTOR, scheduler ) )
 
+from cron import Cron
+procs.append( Cron() )
+
 try:
     while True:
         for p in procs:
