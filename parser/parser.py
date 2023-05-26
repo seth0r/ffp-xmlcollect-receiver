@@ -10,9 +10,11 @@ class defdict(defaultdict):
     def __init__(self,*args):
         super().__init__(self.__class__)
 
-class Parser(Process,parser.ffgParser):
+class Parser( Process, parser.ffgParser, parser.InfluxFeeder, parser.MongoFeeder ):
     def __init__( self, stordir, scheduler = None ):
-        super().__init__()
+        for cls in self.__class__.__bases__:
+            if hasattr(cls,"__init__"):
+                getattr(cls,"__init__")(self)
         self.scheduler = scheduler
         self.stordir = stordir
         self.start()
@@ -24,6 +26,7 @@ class Parser(Process,parser.ffgParser):
                 host, files = self.scheduler.get(timeout=1)
                 for f in sorted(files):
                     self.parse( host, f )
+                self.postprocess( host )
             except queue.Empty:
                 pass
         self.logger.info("Stopped.")
@@ -57,3 +60,14 @@ class Parser(Process,parser.ffgParser):
                 getattr(self,fnk)( elem, res, host )
             else:
                 self.logger.warning("No method %s.",fnk)
+        self.feed(res)
+
+    def feed(self, res):
+        for cls in self.__class__.__bases__:
+            if hasattr(cls,"feed"):
+                getattr(cls,"feed")(self,res)
+
+    def postprocess(self, host):
+        for cls in self.__class__.__bases__:
+            if hasattr(cls,"postprocess"):
+                getattr(cls,"postprocess")(self,host)
