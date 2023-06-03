@@ -44,7 +44,7 @@ class Cron(Process):
         self.running = {}
         for cn in __all__:
             c = globals()[cn]
-            if callable(c) and issubclass(c,(Process,Thread)) and hasattr(c,"INTERVAL"):
+            if inspect.isclass(c) and issubclass(c,(Process,Thread)) and hasattr(c,"INTERVAL"):
                 self.classes[ cn ] = c
                 self.last[ cn ] = 0
         self.start()
