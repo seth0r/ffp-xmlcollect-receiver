@@ -99,6 +99,6 @@ class LocationGuesser(Process):
         return float(xv)/1000000,float(yv)/1000000
 
     def near_rnd(self, neighbours, tqs):
-        x = neighbours[tqs[0][0]]["location"][0] - 0.001 + random.random() * 0.002,
-        y = neighbours[tqs[0][0]]["location"][1] - 0.001 + random.random() * 0.002,
+        x = neighbours[tqs[0][0]]["location"][0] - 0.001 + random.random() * 0.002
+        y = neighbours[tqs[0][0]]["location"][1] - 0.001 + random.random() * 0.002
         return x,y
