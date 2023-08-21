@@ -48,6 +48,7 @@ class MongoFeeder:
         for d,dc in node["network"]["mesh"].items():
             for i,a in dc.get("interfaces",{}).items():
                 node["ifaddr"] |= set(a)
+        node["network"].pop("mesh",None)
         node["ifaddr"] = list(sorted( node["ifaddr"] ))
         node["network"]["gateway"] = stat.get("gateway",None)
         node["network"]["nexthop"] = stat.get("gateway_nexthop",None)
