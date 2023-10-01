@@ -63,48 +63,50 @@ class Receiver(Thread):
 
     def receive(self,conn,ip,port):
         start = time.time()
-        buf = conn.recv(1024)
-        # header is the first line, it should arrive in the first second,
-        # should be terminated by a newline,
-        # should have a maximum length of 1024 characters
-        # and only contain a limited set of ascii characters in the form of
-        # <length> <filename> <hostname>
-        while b'\n' not in buf and len(buf) < 1000 and time.time() - start < 1:
-            buf += conn.recv(1024)
-        if b'\n' in buf:
-            line,_,buf = buf.partition(b'\n')
-            for c in line:
-                if c not in bytes(VALIDCHARS,'ascii'):
-                    self.logger.warning("Invalid character %d in first line from %s" % (c,ip))
-                    break
-            else:
-                line = line.decode("ascii").split(None, 2)
-                if len(line) != 3:
-                    self.logger.warning("Not enougth fields in first line %s from %s" % (str(line),ip))
+        try:
+            buf = conn.recv(1024)
+            # header is the first line, it should arrive in the first second,
+            # should be terminated by a newline,
+            # should have a maximum length of 1024 characters
+            # and only contain a limited set of ascii characters in the form of
+            # <length> <filename> <hostname>
+            while b'\n' not in buf and len(buf) < 1000 and time.time() - start < 1:
+                buf += conn.recv(1024)
+            if b'\n' in buf:
+                line,_,buf = buf.partition(b'\n')
+                for c in line:
+                    if c not in bytes(VALIDCHARS,'ascii'):
+                        self.logger.warning("Invalid character %d in first line from %s" % (c,ip))
+                        break
                 else:
-                    length, filename, hostname = line
-                    try:
-                        length = int(length)
-                    except ValueError:
-                        self.logger.warning("Invalid length '%s' from %s" % (length,ip))
+                    line = line.decode("ascii").split(None, 2)
+                    if len(line) != 3:
+                        self.logger.warning("Not enougth fields in first line %s from %s" % (str(line),ip))
                     else:
-                        if length > 100 * 1024:
-                            self.logger.warning("Length %d to big from %s" % (length,ip))
+                        length, filename, hostname = line
+                        try:
+                            length = int(length)
+                        except ValueError:
+                            self.logger.warning("Invalid length '%s' from %s" % (length,ip))
                         else:
-                            start = time.time()
-                            while len(buf) < length and time.time() - start < 5:
-                                buf += conn.recv(length)
-                            if len(buf) == length:
-                                self.stor_received( filename, hostname, buf )
-                                conn.sendall(b'success')
-                                self.logger.info("Received %s with %d bytes for %s from %s" % (filename,length,hostname,ip))
-                                if self.scheduler:
-                                    self.scheduler.put( time.time(), hostname, filename )
-                            elif len(buf) > length:
-                                self.logger.warning("Did receive %d bytes, instead of %d bytes from %s" % (len(buf),length,ip))
+                            if length > 100 * 1024:
+                                self.logger.warning("Length %d to big from %s" % (length,ip))
                             else:
-                                self.logger.warning("Did not receive %d bytes in time from %s" % (length,ip))
-        conn.close()
+                                start = time.time()
+                                while len(buf) < length and time.time() - start < 5:
+                                    buf += conn.recv(length)
+                                if len(buf) == length:
+                                    self.stor_received( filename, hostname, buf )
+                                    self.logger.info("Received %s with %d bytes for %s from %s" % (filename,length,hostname,ip))
+                                    if self.scheduler:
+                                        self.scheduler.put( time.time(), hostname, filename )
+                                    conn.sendall(b'success')
+                                elif len(buf) > length:
+                                    self.logger.warning("Did receive %d bytes, instead of %d bytes from %s" % (len(buf),length,ip))
+                                else:
+                                    self.logger.warning("Did not receive %d bytes in time from %s" % (length,ip))
+        finally:
+            conn.close()
 
 if __name__ == "__main__":
     import logging
