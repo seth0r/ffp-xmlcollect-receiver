@@ -70,7 +70,7 @@ class Receiver(Thread):
             # should have a maximum length of 1024 characters
             # and only contain a limited set of ascii characters in the form of
             # <length> <filename> <hostname>
-            while b'\n' not in buf and len(buf) < 1000 and time.time() - start < 1:
+            while b'\n' not in buf and len(buf) < 1024 and time.time() - start < 1:
                 buf += conn.recv(1024)
             if b'\n' in buf:
                 line,_,buf = buf.partition(b'\n')
