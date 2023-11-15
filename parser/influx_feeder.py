@@ -69,20 +69,20 @@ class InfluxFeeder:
                 yield p
 
     def feedi_conn(self,res):
+        p = {
+            "time": res["time"],
+            "measurement": "conn",
+            "tags": {
+                "node_id": res["node_id"],
+                "host"   : res["host"],
+            },
+            "fields": {},
+        }
         for l3p,conns in res["conn"].items():
             for l4p,num in conns.items():
-                p = {
-                    "time": res["time"],
-                    "measurement": "conn",
-                    "tags": {
-                        "node_id": res["node_id"],
-                        "host"   : res["host"],
-                        "l3proto": l3p,
-                        "l4proto": l4p,
-                    },
-                    "fields": {"number":num},
-                }
-                yield p
+                p["fields"][ "%s-%s" % (l3p,l4p) ] = num
+        if len(p["fields"]) > 0:
+            yield p
 
     def feedi_statistics(self,res):
         for sect in ["clients","traffic","memory","stat"]:
