@@ -18,7 +18,12 @@ class Scheduler(Process):
         self.start()
 
     def run(self):
+        lastmsg = 0
         while not self.shouldstop():
+            now = time.time()
+            if now - lastmsg > 60:
+                self.logger.info("%s alive, inQueue: %d, outQueue: %d" % (self.__class__.__name__, self.inq.qsize(), self.outq.qsize()))
+                lastmsg = now
             try:
                 ts,hostname,filename = self.inq.get(timeout=1)
             except queue.Empty:
