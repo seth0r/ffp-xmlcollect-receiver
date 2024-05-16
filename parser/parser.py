@@ -1,6 +1,7 @@
 from base import Process
 import queue
 import os
+import time
 import gzip
 from xml.etree import ElementTree as ET
 import parser
@@ -48,7 +49,7 @@ class Parser( Process, parser.ffgParser, parser.InfluxFeeder, parser.MongoFeeder
                 self.logger.warning("Parsing of %s from %s not implemented.", fname, host)
         except Exception as ex:
             self.logger.exception("Error parsing %s from %s.", fname, host)
-        mvdir = os.path.join( self.stordir, ".mv", host )
+        mvdir = os.path.join( self.stordir, "." + time.strftime("%Y-%m-%d",time.gmtime()), host )
         os.makedirs( mvdir, exist_ok = True)
         os.rename( fp, os.path.join( mvdir, fname ) )
 

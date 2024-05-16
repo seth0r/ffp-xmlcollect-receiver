@@ -91,6 +91,7 @@ class Receiver(Thread):
                         self.logger.warning("Not enougth fields in first line %s from %s" % (str(line),ip))
                     else:
                         length, filename, hostname = line
+                        hostname = hostname.lstrip(".")
                         try:
                             length = int(length)
                         except ValueError:
