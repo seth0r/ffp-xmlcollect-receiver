@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import socket
 import multiprocessing.pool
+import threading
 import time
 import os
 import string
@@ -17,6 +18,8 @@ class Receiver(Thread):
         self.threads = threads
         os.makedirs(self.stordir, exist_ok = True)
         self.recv_workers = multiprocessing.pool.ThreadPool(self.threads)
+        self.last_recv = time.time()
+        self.lock = threading.RLock()
         #self.srv = socket.create_server(("0.0.0.0",port),backlog=self.threads)
         self.srv = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         self.srv.settimeout(1)
@@ -52,6 +55,10 @@ class Receiver(Thread):
                     del res[i]
                 else:
                     i += 1
+            with self.lock:
+                if time.time() - self.last_recv > 600:
+                    self.logger.warning("Nothing received for 10 minutes.")
+                    break
         self.logger.info("Stopped.")
 
     def stor_received(self,filename, hostname, buf):
@@ -105,6 +112,8 @@ class Receiver(Thread):
                                     self.logger.warning("Did receive %d bytes, instead of %d bytes from %s" % (len(buf),length,ip))
                                 else:
                                     self.logger.warning("Did not receive %d bytes in time from %s" % (length,ip))
+            with self.lock:
+                self.last_recv = start
         finally:
             conn.close()
 
