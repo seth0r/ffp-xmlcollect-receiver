@@ -11,7 +11,7 @@ class defdict(defaultdict):
     def __init__(self,*args):
         super().__init__(self.__class__)
 
-class Parser( Process, parser.ffgParser, parser.InfluxFeeder, parser.MongoFeeder ):
+class Parser( Process, parser.ffgParser, parser.InfluxFeeder, parser.MongoFeeder, parser.TimescaleFeeder ):
     def __init__( self, stordir, scheduler = None ):
         for cls in self.__class__.__bases__:
             if hasattr(cls,"__init__"):
