@@ -24,18 +24,21 @@ class LocationGuesser(Process):
         now = time.time()
         for node in self.mdb["nodes"].find({"location":{"$exists":False},"last_ts":{"$gte":now - 24*60*60}}):
             random.seed(node["_id"])
-            neigh = {}
-            ntqs = defaultdict(list)
-            for l in self.mdb["neighbours"].find({ "local":{"$in":node["ifaddr"]}, "time":{"$gte":now - 24*60*60}, "stat.tq":{"$gt":0} }):
-                n = self.mdb["nodes"].find_one({ "ifaddr":l["remote"], "location":{"$exists":True}, "last_ts":{"$gte":now - 24*60*60} })
-                if n:
-                    neigh[ n["_id"] ] = n
-                    ntqs[ n["_id"] ].append( l["stat"]["tq"] / 255 )
-            for l in self.mdb["neighbours"].find({ "remote":{"$in":node["ifaddr"]}, "time":{"$gte":now - 24*60*60}, "stat.tq":{"$gt":0} }):
-                n = self.mdb["nodes"].find_one({ "ifaddr":l["local"], "location":{"$exists":True}, "last_ts":{"$gte":now - 24*60*60} })
-                if n:
-                    neigh[ n["_id"] ] = n
-                    ntqs[ n["_id"] ].append( l["stat"]["tq"] / 255 )
+            for h in range(1,25):
+                neigh = {}
+                ntqs = defaultdict(list)
+                for l in self.mdb["neighbours"].find({ "local":{"$in":node["ifaddr"]}, "time":{"$gte":now - h*60*60}, "stat.tq":{"$gt":0} }):
+                    n = self.mdb["nodes"].find_one({ "ifaddr":l["remote"], "location":{"$exists":True}, "last_ts":{"$gte":now - 24*60*60} })
+                    if n:
+                        neigh[ n["_id"] ] = n
+                        ntqs[ n["_id"] ].append( l["stat"]["tq"] / 255 )
+                for l in self.mdb["neighbours"].find({ "remote":{"$in":node["ifaddr"]}, "time":{"$gte":now - h*60*60}, "stat.tq":{"$gt":0} }):
+                    n = self.mdb["nodes"].find_one({ "ifaddr":l["local"], "location":{"$exists":True}, "last_ts":{"$gte":now - 24*60*60} })
+                    if n:
+                        neigh[ n["_id"] ] = n
+                        ntqs[ n["_id"] ].append( l["stat"]["tq"] / 255 )
+                if len(neigh) >= 3:
+                    break
             if len(neigh) == 0:
                 continue
             for nid,tqs in list(ntqs.items()):
